@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const ContentBoxStyled = styled.div`
-    width: auto;
+    width: 100%;
     background-color: #e0e0e0;
     padding: 10px 100% 10px 0px;
     border: 1px solid #ccc;

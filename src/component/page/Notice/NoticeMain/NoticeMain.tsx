@@ -6,6 +6,7 @@ import { NoticeModal } from "../NoticeModal/NoticeModal";
 import { Protal } from "../../../common/potal/Portal";
 import { useRecoilState } from "recoil";
 import { modalState } from "../../../../stores/modalState";
+import { PageNavigate } from "../../../common/pageNavigation/PageNavigate";
 
 export interface INoticeList {
     file_ext: string;
@@ -28,8 +29,11 @@ export interface INoticeListJsonResponse {
 export const NoticeMain = () => {
     const { search } = useLocation(); // notice 컴포넌트가 열렸을 때 바로 실행
     const [noticeList, setNoticeList] = useState<INoticeList[]>([]);
+    const [listCount, setListCount] = useState<number>(0);
     const [modal, setModal] = useRecoilState<boolean>(modalState);
     const [notiSeq, setNotiSeq] = useState<number>();
+    const [currentParam, setCurrentParam] = useState<number | undefined>();
+
     useEffect(() => {
         searchNoticeList();
     }, [search]);
@@ -43,6 +47,8 @@ export const NoticeMain = () => {
 
         axios.post(`/board/noticeListJson.do`, searchParam).then((res: AxiosResponse<INoticeListJsonResponse>) => {
             setNoticeList(res.data.noticeList);
+            setListCount(res.data.listCount);
+            setCurrentParam(cpage);
         });
     };
 
@@ -52,9 +58,15 @@ export const NoticeMain = () => {
         setModal(!modal);
     };
 
+    const postSuccess = () => {
+        // 등록이 성공했을 때 리스트 다시 검색
+        setModal(!modal);
+        searchNoticeList();
+    };
+
     return (
         <>
-            총 개수 : 0 현재 페이지 : 0
+            총 개수 : {listCount} 현재 페이지 : {currentParam}
             <StyledTable>
                 <thead>
                     <tr>
@@ -83,12 +95,23 @@ export const NoticeMain = () => {
                         </tr>
                     )}
                 </tbody>
-                {modal ? ( // props: 부모 컴포넌트에 있는 값을 자식 컴포넌트에 전달
-                    <Protal>
-                        <NoticeModal noticeSeq={notiSeq}></NoticeModal>
-                    </Protal>
-                ) : null}
             </StyledTable>
+            <PageNavigate
+                onChange={searchNoticeList}
+                totalItemsCount={listCount}
+                itemsCountPerPage={5}
+                activePage={currentParam as number} // as 타입: 강제적으로 특정타입으로 설정해줌 (타입단언)
+            ></PageNavigate>
+            {modal ? ( // props: 부모 컴포넌트에 있는 값을 자식 컴포넌트에 전달
+                <Protal>
+                    <NoticeModal
+                        noticeSeq={notiSeq}
+                        setNoticeSeq={setNotiSeq}
+                        onSuccess={postSuccess}
+                        handlerModal={handlerModal}
+                    ></NoticeModal>
+                </Protal>
+            ) : null}
         </>
     );
 };

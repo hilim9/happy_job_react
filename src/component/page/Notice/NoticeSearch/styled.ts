@@ -1,6 +1,9 @@
 import styled from "styled-components";
 
 export const NoticeSearchStyled = styled.div`
+    padding-right: 10px;
+    text-align: right;
+
     input {
         padding: 8px;
         margin-top: -60px;

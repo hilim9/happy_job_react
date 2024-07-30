@@ -2,11 +2,14 @@ import { useRef, useState } from "react";
 import { Button } from "../../../common/Button/Button";
 import { NoticeSearchStyled } from "./styled";
 import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { modalState } from "../../../../stores/modalState";
 
 export const NoticeSearch = () => {
     const [startDate, setStartDate] = useState<String>(); // string으로 타입 지정
     const [endDate, setEndDate] = useState<String>(); // string으로 타입 지정
     const title = useRef<HTMLInputElement>(null);
+    const [modal, setModal] = useRecoilState<boolean>(modalState);
     const navigate = useNavigate(); // useNavigate: 원하는 url로 이동 가능
 
     const handlerSearch = () => {
@@ -33,13 +36,17 @@ export const NoticeSearch = () => {
         // }
     };
 
+    const handlerModal = () => {
+        setModal(!modal);
+    };
+
     return (
         <NoticeSearchStyled>
             <input ref={title}></input>
             <input type="date" onChange={(e) => setStartDate(e.target.value)}></input>
             <input type="date" onChange={(e) => setEndDate(e.target.value)}></input>
             <Button onClick={handlerSearch}>검색</Button>
-            <Button>등록</Button>
+            <Button onClick={handlerModal}>등록</Button>
         </NoticeSearchStyled>
     );
 };
